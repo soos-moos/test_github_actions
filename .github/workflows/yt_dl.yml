@@ -1,0 +1,42 @@
+name: Youtube Downloader
+
+on:
+  workflow_dispatch:
+    inputs:
+      url:
+        description: URL from youtube
+        required: true
+        type: string
+  push:
+    branches:
+      - main
+
+permissions: 
+  contents: write
+
+jobs:
+  Youtube-DL:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup FFmpeg
+        uses: AnimMouse/setup-ffmpeg@v1
+        
+      - name: Setup youtube-dl
+        uses: AnimMouse/setup-youtube-dl@v1
+
+      - name: Download from youtube url
+        run: youtube-dl ${{ inputs.url }}
+
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Push to Repository
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add .
+          git commit -m "⬇️ Youtube URL: ${{ inputs.url }}"
+          git push
+      
